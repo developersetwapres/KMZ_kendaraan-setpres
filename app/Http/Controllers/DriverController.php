@@ -15,7 +15,7 @@ class DriverController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('kendaraan/page');
+        return Inertia::render('sopir/page');
     }
 
 
@@ -32,7 +32,7 @@ class DriverController extends Controller
      */
     public function store(StoreDriverRequest $request)
     {
-        //
+        dd($request->all());
     }
 
     /**

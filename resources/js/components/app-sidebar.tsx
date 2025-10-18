@@ -11,6 +11,9 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as indexDriver } from '@/routes/driver';
+import { index as indexKendaraan } from '@/routes/kendaraan';
+import { index as indexPenggunaan } from '@/routes/penggunaan';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
@@ -26,17 +29,17 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Penggunaan',
-        href: '/dashboard/penggunaan',
+        href: indexPenggunaan().url,
         icon: ClipboardList,
     },
     {
         title: 'Kendaraan',
-        href: '/dashboard/kendaraan',
+        href: indexKendaraan().url,
         icon: Car,
     },
     {
         title: 'Driver',
-        href: '/dashboard/driver',
+        href: indexDriver().url,
         icon: UserRound,
     },
 ];

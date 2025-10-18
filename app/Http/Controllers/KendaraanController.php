@@ -15,7 +15,7 @@ class KendaraanController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('sopir/page');
+        return Inertia::render('kendaraan/page');
     }
 
     /**
@@ -31,7 +31,7 @@ class KendaraanController extends Controller
      */
     public function store(StoreKendaraanRequest $request)
     {
-        //
+        dd($request->all());
     }
 
     /**
