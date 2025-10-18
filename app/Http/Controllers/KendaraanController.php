@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreKendaraanRequest;
 use App\Http\Requests\UpdateKendaraanRequest;
 use App\Models\Kendaraan;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class KendaraanController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        //
+        return Inertia::render('sopir/page');
     }
 
     /**

@@ -16,11 +16,28 @@ import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
+import { Car, ClipboardList, UserRound } from 'lucide-react';
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Penggunaan',
+        href: '/dashboard/penggunaan',
+        icon: ClipboardList,
+    },
+    {
+        title: 'Kendaraan',
+        href: '/dashboard/kendaraan',
+        icon: Car,
+    },
+    {
+        title: 'Driver',
+        href: '/dashboard/driver',
+        icon: UserRound,
     },
 ];
 

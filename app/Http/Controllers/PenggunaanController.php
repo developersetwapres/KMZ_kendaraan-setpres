@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePenggunaanRequest;
 use App\Http\Requests\UpdatePenggunaanRequest;
 use App\Models\Penggunaan;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class PenggunaanController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        //
+        return Inertia::render('penggunaan/page');
     }
 
     /**

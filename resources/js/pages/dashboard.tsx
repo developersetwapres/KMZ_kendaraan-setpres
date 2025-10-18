@@ -1,8 +1,35 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { CardStat } from '@/components/kendaraan/card-stat';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from '@/components/ui/chart';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import {
+    CalendarClock,
+    Car,
+    ClipboardList,
+    Gauge,
+    Users,
+    Wrench,
+} from 'lucide-react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    XAxis,
+    YAxis,
+} from 'recharts';
+('use client');
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -12,24 +39,175 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
+    // Simulated summary stats (could be synced with localStorage if needed)
+    const stats = [
+        {
+            title: 'Total Kendaraan',
+            value: 24,
+            icon: <Car className="size-5 text-muted-foreground" />,
+        },
+        {
+            title: 'Total Sopir',
+            value: 12,
+            icon: <Users className="size-5 text-muted-foreground" />,
+        },
+        {
+            title: 'Penggunaan Aktif',
+            value: 5,
+            icon: <ClipboardList className="size-5 text-muted-foreground" />,
+        },
+    ];
+
+    // Metrik ringkas baru
+    const extraStats = [
+        {
+            title: 'Unit Tersedia',
+            value: 19,
+            icon: <Gauge className="size-5 text-muted-foreground" />,
+        },
+        {
+            title: 'Jadwal Servis',
+            value: 3,
+            icon: <Wrench className="size-5 text-muted-foreground" />,
+        },
+        {
+            title: 'Rata2 Penggunaan/Hari',
+            value: 8,
+            icon: <CalendarClock className="size-5 text-muted-foreground" />,
+        },
+    ];
+
+    // Dataset chart simulasi
+    const pemakaianBulanan = [
+        { bulan: 'Jan', penggunaan: 42 },
+        { bulan: 'Feb', penggunaan: 38 },
+        { bulan: 'Mar', penggunaan: 51 },
+        { bulan: 'Apr', penggunaan: 46 },
+        { bulan: 'Mei', penggunaan: 57 },
+        { bulan: 'Jun', penggunaan: 62 },
+    ];
+
+    const komposisiKendaraan = [
+        { name: 'Aktif', value: 18 },
+        { name: 'Servis', value: 4 },
+        { name: 'Tidak Aktif', value: 2 },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                    {stats.map((s) => (
+                        <CardStat
+                            key={s.title}
+                            title={s.title}
+                            value={s.value}
+                            icon={s.icon}
+                        />
+                    ))}
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                {/* Kartu extra */}
+                <div className="grid gap-4 md:grid-cols-3">
+                    {extraStats.map((s) => (
+                        <CardStat
+                            key={s.title}
+                            title={s.title}
+                            value={s.value}
+                            icon={s.icon}
+                        />
+                    ))}
                 </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-balance">
+                            Penggunaan Kendaraan per Bulan
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer
+                            className="h-[280px]"
+                            config={{
+                                penggunaan: {
+                                    label: 'Penggunaan',
+                                    color: 'hsl(var(--chart-1))',
+                                },
+                            }}
+                        >
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={pemakaianBulanan}
+                                    margin={{ left: 8, right: 8 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="bulan" />
+                                    <YAxis />
+                                    <ChartTooltip
+                                        content={<ChartTooltipContent />}
+                                    />
+                                    <Legend />
+                                    <Bar
+                                        dataKey="penggunaan"
+                                        fill="var(--color-penggunaan)"
+                                        radius={[6, 6, 0, 0]}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-balance">
+                            Komposisi Status Kendaraan
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer
+                            className="h-[280px]"
+                            config={{
+                                aktif: {
+                                    label: 'Aktif',
+                                    color: 'hsl(var(--chart-2))',
+                                },
+                                servis: {
+                                    label: 'Servis',
+                                    color: 'hsl(var(--chart-3))',
+                                },
+                                nonaktif: {
+                                    label: 'Tidak Aktif',
+                                    color: 'hsl(var(--chart-4))',
+                                },
+                            }}
+                        >
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <ChartTooltip
+                                        content={<ChartTooltipContent />}
+                                    />
+                                    <Legend />
+                                    <Pie
+                                        data={komposisiKendaraan}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={50}
+                                        outerRadius={90}
+                                        paddingAngle={4}
+                                    >
+                                        <Cell fill="var(--color-aktif)" />
+                                        <Cell fill="var(--color-servis)" />
+                                        <Cell fill="var(--color-nonaktif)" />
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
             </div>
         </AppLayout>
     );
