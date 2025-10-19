@@ -17,7 +17,15 @@ class KendaraanFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nomor_polisi' => strtoupper(fake()->bothify('B #### ??')),
+            'merk' => fake()->randomElement(['Toyota', 'Honda', 'Suzuki', 'Mitsubishi']),
+            'tipe' => fake()->word(),
+            'tahun_pembuatan' => fake()->year(),
+            'warna' => fake()->safeColorName(),
+            'nomor_rangka' => strtoupper(fake()->bothify('RNG######??')),
+            'nomor_mesin' => strtoupper(fake()->bothify('MSN######??')),
+            'status' => fake()->randomElement(['Active', 'Maintenance', 'Inactive']),
+            'foto_kendaraan' => null,
         ];
     }
 }

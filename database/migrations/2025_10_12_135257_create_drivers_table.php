@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_sopir');
+            $table->string('nama');
+            $table->string('nip')->unique();
+            $table->string('no_hp');
+            $table->enum('status', ['Active', 'Off', 'Inactive']);
+            $table->string('sim');
+            $table->date('masa_berlaku_sim');
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }

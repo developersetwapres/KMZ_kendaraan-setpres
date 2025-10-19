@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDriverRequest;
 use App\Http\Requests\UpdateDriverRequest;
 use App\Models\Driver;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,7 +16,16 @@ class DriverController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('sopir/page');
+        $tahunBerjalan = Carbon::now()->year;
+
+        $data = [
+            'initialData' => Driver::whereYear('created_at', $tahunBerjalan)
+                ->latest()
+                ->take(100)
+                ->get(),
+        ];
+
+        return Inertia::render('sopir/page', $data);
     }
 
 
@@ -32,7 +42,14 @@ class DriverController extends Controller
      */
     public function store(StoreDriverRequest $request)
     {
-        dd($request->all());
+        $data = $request->validated();
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('driver', 'public');
+            $data['foto'] = $path;
+        }
+
+        Driver::create($data);
     }
 
     /**
@@ -56,7 +73,9 @@ class DriverController extends Controller
      */
     public function update(UpdateDriverRequest $request, Driver $driver)
     {
-        //
+        $validated = $request->validated();
+
+        $driver->update($validated);
     }
 
     /**
@@ -64,6 +83,6 @@ class DriverController extends Controller
      */
     public function destroy(Driver $driver)
     {
-        //
+        $driver->delete();
     }
 }

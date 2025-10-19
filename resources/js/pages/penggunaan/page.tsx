@@ -39,21 +39,14 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import AppLayout from '@/layouts/app-layout';
-import { index as indexPenggunaan } from '@/routes/penggunaan';
+import { destroy, index, status, store } from '@/routes/penggunaan';
 import { BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import {
-    ChevronLeft,
-    ChevronRight,
-    Eye,
-    Pencil,
-    Plus,
-    Trash,
-} from 'lucide-react';
-import { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { ChevronLeft, ChevronRight, Eye, Plus, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type Penggunaan = {
-    id_penggunaan: string;
+    kode_penggunaan: string;
     kendaraan_id: string;
     sopir_id: string;
     tanggal_mulai: string;
@@ -65,109 +58,22 @@ type Penggunaan = {
     status: string;
 };
 
-const initialData: Penggunaan[] = [
-    {
-        id_penggunaan: 'P-001',
-        kendaraan_id: 'K-001',
-        sopir_id: 'S-001',
-        tanggal_mulai: '2025-10-12',
-        waktu_mulai: '08:00',
-        tanggal_selesai: '2025-10-12',
-        waktu_selesai: '17:00',
-        tujuan: 'Rapat Koordinasi',
-        catatan: 'Perjalanan lancar, tidak ada kendala.',
-        status: 'Selesai',
-    },
-    {
-        id_penggunaan: 'P-002',
-        kendaraan_id: 'K-002',
-        sopir_id: 'S-002',
-        tanggal_mulai: '2025-10-18',
-        waktu_mulai: '09:30',
-        tanggal_selesai: '',
-        waktu_selesai: '',
-        tujuan: 'Kunjungan Lapangan',
-        catatan: 'Perjalanan ke lokasi proyek di Bogor.',
-        status: 'Dalam Perjalanan',
-    },
-    {
-        id_penggunaan: 'P-003',
-        kendaraan_id: 'K-003',
-        sopir_id: 'S-003',
-        tanggal_mulai: '2025-10-15',
-        waktu_mulai: '10:00',
-        tanggal_selesai: '2025-10-15',
-        waktu_selesai: '15:30',
-        tujuan: 'Pengiriman Dokumen',
-        catatan: 'Pengiriman dokumen ke kantor cabang.',
-        status: 'Selesai',
-    },
-    {
-        id_penggunaan: 'P-004',
-        kendaraan_id: 'K-004',
-        sopir_id: 'S-004',
-        tanggal_mulai: '2025-10-16',
-        waktu_mulai: '07:00',
-        tanggal_selesai: '2025-10-16',
-        waktu_selesai: '18:00',
-        tujuan: 'Perjalanan Dinas',
-        catatan: 'Perjalanan dinas ke Bandung.',
-        status: 'Selesai',
-    },
-    {
-        id_penggunaan: 'P-005',
-        kendaraan_id: 'K-005',
-        sopir_id: 'S-005',
-        tanggal_mulai: '2025-10-18',
-        waktu_mulai: '11:00',
-        tanggal_selesai: '',
-        waktu_selesai: '',
-        tujuan: 'Antar Tamu',
-        catatan: 'Mengantar tamu dari bandara ke hotel.',
-        status: 'Dalam Perjalanan',
-    },
-    {
-        id_penggunaan: 'P-006',
-        kendaraan_id: 'K-001',
-        sopir_id: 'S-006',
-        tanggal_mulai: '2025-10-17',
-        waktu_mulai: '13:00',
-        tanggal_selesai: '2025-10-17',
-        waktu_selesai: '16:45',
-        tujuan: 'Rapat Internal',
-        catatan: 'Rapat internal dengan divisi lain.',
-        status: 'Selesai',
-    },
-];
-
-// Mock data for dropdowns
-const kendaraanList = [
-    { id: 'K-001', label: 'B 1234 SP - Toyota Innova' },
-    { id: 'K-002', label: 'B 5678 SP - Honda Accord' },
-    { id: 'K-003', label: 'B 9012 SP - Mitsubishi Pajero' },
-    { id: 'K-004', label: 'B 3456 SP - Daihatsu Xenia' },
-    { id: 'K-005', label: 'B 7890 SP - Isuzu Panther' },
-];
-
-const sopirList = [
-    { id: 'S-001', label: 'Budi Santoso' },
-    { id: 'S-002', label: 'Ahmad Wijaya' },
-    { id: 'S-003', label: 'Siti Nurhaliza' },
-    { id: 'S-004', label: 'Rudi Hermawan' },
-    { id: 'S-005', label: 'Eka Putri' },
-    { id: 'S-006', label: 'Bambang Suryanto' },
-];
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Penggunaan',
-        href: indexPenggunaan().url,
+        href: index().url,
     },
 ];
 
-export default function PenggunaanPage() {
+export default function PenggunaanPage({
+    sopirList,
+    kendaraanList,
+    initialData,
+}: any) {
+    console.log(initialData);
+
     const [data, setData] = useState<Penggunaan[]>(initialData);
     const [open, setOpen] = useState(false);
     const [detailOpen, setDetailOpen] = useState(false);
@@ -179,7 +85,7 @@ export default function PenggunaanPage() {
     const { toast } = useToast();
 
     const [form, setForm] = useState<Penggunaan>({
-        id_penggunaan: '',
+        kode_penggunaan: '',
         kendaraan_id: '',
         sopir_id: '',
         tanggal_mulai: '',
@@ -219,7 +125,7 @@ export default function PenggunaanPage() {
     const openAdd = () => {
         setEditing(null);
         setForm({
-            id_penggunaan: '',
+            kode_penggunaan: '',
             kendaraan_id: '',
             sopir_id: '',
             tanggal_mulai: '',
@@ -249,7 +155,7 @@ export default function PenggunaanPage() {
             console.log('[UPDATE PENGGUNAAN]', form);
             setData((prev) =>
                 prev.map((r) =>
-                    r.id_penggunaan === editing.id_penggunaan ? form : r,
+                    r.kode_penggunaan === editing.kode_penggunaan ? form : r,
                 ),
             );
             toast({
@@ -257,57 +163,66 @@ export default function PenggunaanPage() {
                 description: 'Perubahan penggunaan telah disimpan.',
             });
         } else {
-            console.log('[CREATE PENGGUNAAN]', form);
-            setData((prev) => [
-                {
-                    ...form,
-                    id_penggunaan:
-                        form.id_penggunaan ||
-                        `P-${String(prev.length + 1).padStart(3, '0')}`,
+            router.post(store().url, form, {
+                forceFormData: true,
+                onSuccess: () => {
+                    toast({
+                        title: 'Data berhasil disimpan',
+                        description: 'Penggunaan baru telah ditambahkan.',
+                    });
                 },
-                ...prev,
-            ]);
-            toast({
-                title: 'Data berhasil disimpan',
-                description: 'Penggunaan baru telah ditambahkan.',
+                onError: (err) => {
+                    console.log(err);
+
+                    // toast({
+                    //     title: 'Data gagal disimpan',
+                    //     description: err,
+                    // });
+                },
             });
         }
         setOpen(false);
     };
 
-    const onFinish = (row: Penggunaan) => {
+    const onFinish = (kode: any) => {
         const now = new Date();
-        const tanggalSelesai = now.toISOString().split('T')[0];
         const waktuSelesai = now.toTimeString().slice(0, 5);
 
-        const updated = {
-            ...row,
-            tanggal_selesai: tanggalSelesai,
-            waktu_selesai: waktuSelesai,
-            status: 'Selesai',
-        };
-        console.log('[FINISH PENGGUNAAN]', updated);
-        setData((prev) =>
-            prev.map((r) =>
-                r.id_penggunaan === row.id_penggunaan ? updated : r,
-            ),
+        router.patch(
+            status(kode).url,
+            {},
+            {
+                onSuccess: () => {
+                    toast({
+                        title: 'Penggunaan selesai',
+                        description: `Kendaraan telah kembali pada ${waktuSelesai}.`,
+                    });
+                    setDetailOpen(false);
+                },
+                onError: (err) => {
+                    console.log(err);
+                },
+            },
         );
-        toast({
-            title: 'Penggunaan selesai',
-            description: `Kendaraan telah kembali pada ${waktuSelesai}.`,
+    };
+
+    const onDelete = (kode_penggunaan: string) => {
+        router.delete(destroy(kode_penggunaan).url, {
+            onSuccess: () => {
+                setData((prev) =>
+                    prev.filter((r) => r.kode_penggunaan !== kode_penggunaan),
+                );
+                toast({
+                    title: 'Data berhasil dihapus',
+                    description: `Driver ${kode_penggunaan} dihapus.`,
+                });
+            },
         });
     };
 
-    const onDelete = (row: Penggunaan) => {
-        console.log('[DELETE PENGGUNAAN]', row);
-        setData((prev) =>
-            prev.filter((r) => r.id_penggunaan !== row.id_penggunaan),
-        );
-        toast({
-            title: 'Data berhasil dihapus',
-            description: `Penggunaan ${row.id_penggunaan} dihapus.`,
-        });
-    };
+    useEffect(() => {
+        setData(initialData);
+    }, [initialData]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -388,15 +303,19 @@ export default function PenggunaanPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedData.map((row) => (
-                                        <TableRow key={row.id_penggunaan}>
+                                        <TableRow key={row.kode_penggunaan}>
                                             <TableCell>
-                                                {row.id_penggunaan}
+                                                {row.kode_penggunaan}
                                             </TableCell>
                                             <TableCell>
-                                                {row.kendaraan_id}
+                                                {row.kendaraan?.nomor_polisi +
+                                                    ' - ' +
+                                                    row.kendaraan?.merk +
+                                                    ' ' +
+                                                    row.kendaraan?.tipe}
                                             </TableCell>
                                             <TableCell>
-                                                {row.sopir_id}
+                                                {row.sopir?.nama}
                                             </TableCell>
                                             <TableCell>
                                                 {row.tanggal_mulai}{' '}
@@ -430,7 +349,7 @@ export default function PenggunaanPage() {
                                                     >
                                                         <Eye className="size-4" />
                                                     </Button>
-                                                    <Button
+                                                    {/* <Button
                                                         variant="outline"
                                                         size="icon"
                                                         onClick={() =>
@@ -438,7 +357,7 @@ export default function PenggunaanPage() {
                                                         }
                                                     >
                                                         <Pencil className="size-4" />
-                                                    </Button>
+                                                    </Button> */}
                                                     <AlertDialog>
                                                         <AlertDialogTrigger
                                                             asChild
@@ -463,7 +382,7 @@ export default function PenggunaanPage() {
                                                                     Data
                                                                     penggunaan{' '}
                                                                     {
-                                                                        row.id_penggunaan
+                                                                        row.kode_penggunaan
                                                                     }{' '}
                                                                     akan
                                                                     dihapus.
@@ -476,7 +395,7 @@ export default function PenggunaanPage() {
                                                                 <AlertDialogAction
                                                                     onClick={() =>
                                                                         onDelete(
-                                                                            row,
+                                                                            row.kode_penggunaan,
                                                                         )
                                                                     }
                                                                 >
@@ -557,7 +476,7 @@ export default function PenggunaanPage() {
                                             ID Penggunaan
                                         </Label>
                                         <p className="font-medium">
-                                            {selectedDetail.id_penggunaan}
+                                            {selectedDetail.kode_penggunaan}
                                         </p>
                                     </div>
                                     <div>
@@ -632,7 +551,11 @@ export default function PenggunaanPage() {
                                 {selectedDetail.status ===
                                     'Dalam Perjalanan' && (
                                     <Button
-                                        onClick={() => onFinish(selectedDetail)}
+                                        onClick={() =>
+                                            onFinish(
+                                                selectedDetail.kode_penggunaan,
+                                            )
+                                        }
                                         className="mt-4 w-full"
                                     >
                                         Tandai Selesai
@@ -646,7 +569,7 @@ export default function PenggunaanPage() {
                 <FormModal
                     title={
                         editing
-                            ? `Ubah Penggunaan ${editing.id_penggunaan}`
+                            ? `Ubah Penggunaan ${editing.kode_penggunaan}`
                             : 'Tambah Penggunaan'
                     }
                     open={open}
@@ -666,9 +589,13 @@ export default function PenggunaanPage() {
                                     <SelectValue placeholder="Pilih Kendaraan" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {kendaraanList.map((k) => (
+                                    {kendaraanList.map((k: any) => (
                                         <SelectItem key={k.id} value={k.id}>
-                                            {k.label}
+                                            {k.nomor_polisi +
+                                                ' - ' +
+                                                k.merk +
+                                                ' ' +
+                                                k.tipe}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -686,9 +613,9 @@ export default function PenggunaanPage() {
                                     <SelectValue placeholder="Pilih Driver" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {sopirList.map((s) => (
+                                    {sopirList.map((s: any) => (
                                         <SelectItem key={s.id} value={s.id}>
-                                            {s.label}
+                                            {s.nama}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -771,13 +698,13 @@ export default function PenggunaanPage() {
                         </div>
                         <div className="grid gap-2 md:col-span-2">
                             <Label htmlFor="catatan">
-                                Catatan ({form.catatan.length}/500)
+                                Catatan ({form.catatan.length}/250)
                             </Label>
                             <textarea
                                 id="catatan"
                                 value={form.catatan}
                                 onChange={(e) => {
-                                    if (e.target.value.length <= 500) {
+                                    if (e.target.value.length <= 250) {
                                         setForm({
                                             ...form,
                                             catatan: e.target.value,

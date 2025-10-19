@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import AppLayout from '@/layouts/app-layout';
-import { index as indexKendaraan, store } from '@/routes/kendaraan';
+import { destroy, index, store, update } from '@/routes/kendaraan';
 import { BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import {
@@ -52,7 +52,7 @@ import {
 import { useState } from 'react';
 
 type Kendaraan = {
-    id_kendaraan: string;
+    kode_kendaraan: string;
     nomor_polisi: string;
     merk: string;
     tipe: string;
@@ -65,91 +65,16 @@ type Kendaraan = {
     fotoPreview?: string;
 };
 
-const initialData: Kendaraan[] = [
-    {
-        id_kendaraan: 'K-001',
-        nomor_polisi: 'B 1234 SP',
-        merk: 'Toyota',
-        tipe: 'Innova',
-        tahun_pembuatan: '2019',
-        warna: 'Hitam',
-        nomor_rangka: 'NRK-001',
-        nomor_mesin: 'NMS-001',
-        status: 'Aktif',
-        foto_kendaraan: '',
-    },
-    {
-        id_kendaraan: 'K-002',
-        nomor_polisi: 'B 5678 SP',
-        merk: 'Honda',
-        tipe: 'Accord',
-        tahun_pembuatan: '2020',
-        warna: 'Putih',
-        nomor_rangka: 'NRK-002',
-        nomor_mesin: 'NMS-002',
-        status: 'Aktif',
-        foto_kendaraan: '',
-    },
-    {
-        id_kendaraan: 'K-003',
-        nomor_polisi: 'B 9012 SP',
-        merk: 'Mitsubishi',
-        tipe: 'Pajero',
-        tahun_pembuatan: '2018',
-        warna: 'Biru',
-        nomor_rangka: 'NRK-003',
-        nomor_mesin: 'NMS-003',
-        status: 'Service',
-        foto_kendaraan: '',
-    },
-    {
-        id_kendaraan: 'K-004',
-        nomor_polisi: 'B 3456 SP',
-        merk: 'Daihatsu',
-        tipe: 'Xenia',
-        tahun_pembuatan: '2021',
-        warna: 'Merah',
-        nomor_rangka: 'NRK-004',
-        nomor_mesin: 'NMS-004',
-        status: 'Aktif',
-        foto_kendaraan: '',
-    },
-    {
-        id_kendaraan: 'K-005',
-        nomor_polisi: 'B 7890 SP',
-        merk: 'Isuzu',
-        tipe: 'Panther',
-        tahun_pembuatan: '2017',
-        warna: 'Hitam',
-        nomor_rangka: 'NRK-005',
-        nomor_mesin: 'NMS-005',
-        status: 'Non Aktif',
-        foto_kendaraan: '',
-    },
-    {
-        id_kendaraan: 'K-006',
-        nomor_polisi: 'B 2345 SP',
-        merk: 'Toyota',
-        tipe: 'Avanza',
-        tahun_pembuatan: '2022',
-        warna: 'Silver',
-        nomor_rangka: 'NRK-006',
-        nomor_mesin: 'NMS-006',
-        status: 'Aktif',
-        foto_kendaraan: '',
-    },
-];
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Kendaraan',
-        href: indexKendaraan().url,
+        href: index().url,
     },
 ];
 
-export default function KendaraanPage() {
+export default function KendaraanPage({ initialData }: any) {
     const [data, setData] = useState<Kendaraan[]>(initialData);
     const [open, setOpen] = useState(false);
     const [photoOpen, setPhotoOpen] = useState(false);
@@ -159,7 +84,7 @@ export default function KendaraanPage() {
     const { toast } = useToast();
 
     const [form, setForm] = useState<Kendaraan>({
-        id_kendaraan: '',
+        kode_kendaraan: '',
         nomor_polisi: '',
         merk: '',
         tipe: '',
@@ -173,8 +98,10 @@ export default function KendaraanPage() {
     });
 
     const totalKendaraan = data.length;
-    const kendaraanTersedia = data.filter((k) => k.status === 'Aktif').length;
-    const kendaraanService = data.filter((k) => k.status === 'Service').length;
+    const kendaraanTersedia = data.filter((k) => k.status === 'Active').length;
+    const kendaraanService = data.filter(
+        (k) => k.status === 'Maintenance',
+    ).length;
 
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -183,7 +110,7 @@ export default function KendaraanPage() {
     const openAdd = () => {
         setEditing(null);
         setForm({
-            id_kendaraan: '',
+            kode_kendaraan: '',
             nomor_polisi: '',
             merk: '',
             tipe: '',
@@ -221,16 +148,39 @@ export default function KendaraanPage() {
         const { fotoPreview, ...payload } = form;
 
         if (editing) {
-            console.log('[UPDATE KENDARAAN]', form);
-            setData((prev) =>
-                prev.map((r) =>
-                    r.id_kendaraan === editing.id_kendaraan ? form : r,
-                ),
+            router.post(
+                update(payload.kode_kendaraan).url,
+                {
+                    ...payload,
+                    _method: 'PUT',
+                },
+                {
+                    forceFormData: true,
+
+                    onSuccess: () => {
+                        setData((prev) =>
+                            prev.map((r) =>
+                                r.kode_kendaraan === editing.kode_kendaraan
+                                    ? form
+                                    : r,
+                            ),
+                        );
+
+                        toast({
+                            title: 'Data berhasil disimpan',
+                            description: 'Perubahan kendaraan telah disimpan.',
+                        });
+                    },
+                    onError: (err) => {
+                        console.log(err);
+
+                        // toast({
+                        //     title: 'Data gagal disimpan',
+                        //     description: err,
+                        // });
+                    },
+                },
             );
-            toast({
-                title: 'Data berhasil disimpan',
-                description: 'Perubahan kendaraan telah disimpan.',
-            });
         } else {
             router.post(store().url, payload, {
                 forceFormData: true,
@@ -241,24 +191,29 @@ export default function KendaraanPage() {
                     });
                 },
                 onError: (err) => {
-                    toast({
-                        title: 'Data gagal disimpan',
-                        description: err,
-                    });
+                    console.log(err);
+
+                    // toast({
+                    //     title: 'Data gagal disimpan',
+                    //     description: err,
+                    // });
                 },
             });
         }
         setOpen(false);
     };
 
-    const onDelete = (row: Kendaraan) => {
-        console.log('[DELETE KENDARAAN]', row);
-        setData((prev) =>
-            prev.filter((r) => r.id_kendaraan !== row.id_kendaraan),
-        );
-        toast({
-            title: 'Data berhasil dihapus',
-            description: `Kendaraan ${row.id_kendaraan} dihapus.`,
+    const onDelete = (kode_kendaraan: string) => {
+        router.delete(destroy(kode_kendaraan).url, {
+            onSuccess: () => {
+                setData((prev) =>
+                    prev.filter((r) => r.kode_kendaraan !== kode_kendaraan),
+                );
+                toast({
+                    title: 'Data berhasil dihapus',
+                    description: `Kendaraan ${kode_kendaraan} dihapus.`,
+                });
+            },
         });
     };
 
@@ -340,7 +295,7 @@ export default function KendaraanPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedData.map((row) => (
-                                        <TableRow key={row.id_kendaraan}>
+                                        <TableRow key={row.kode_kendaraan}>
                                             <TableCell>
                                                 <button
                                                     onClick={() =>
@@ -354,7 +309,7 @@ export default function KendaraanPage() {
                                                 </button>
                                             </TableCell>
                                             <TableCell>
-                                                {row.id_kendaraan}
+                                                {row.kode_kendaraan}
                                             </TableCell>
                                             <TableCell>
                                                 {row.nomor_polisi}
@@ -368,10 +323,10 @@ export default function KendaraanPage() {
                                             <TableCell>
                                                 <span
                                                     className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                                        row.status === 'Aktif'
+                                                        row.status === 'Active'
                                                             ? 'bg-green-100 text-green-800'
                                                             : row.status ===
-                                                                'Service'
+                                                                'Maintenance'
                                                               ? 'bg-orange-100 text-orange-800'
                                                               : 'bg-red-100 text-red-800'
                                                     }`}
@@ -426,7 +381,7 @@ export default function KendaraanPage() {
                                                                 <AlertDialogAction
                                                                     onClick={() =>
                                                                         onDelete(
-                                                                            row,
+                                                                            row.kode_kendaraan,
                                                                         )
                                                                     }
                                                                 >
@@ -515,7 +470,7 @@ export default function KendaraanPage() {
                 <FormModal
                     title={
                         editing
-                            ? `Ubah Kendaraan ${editing.id_kendaraan}`
+                            ? `Ubah Kendaraan ${editing.kode_kendaraan}`
                             : 'Tambah Kendaraan'
                     }
                     open={open}
@@ -621,12 +576,14 @@ export default function KendaraanPage() {
                                     <SelectValue placeholder="Pilih Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Aktif">Aktif</SelectItem>
-                                    <SelectItem value="Service">
-                                        Service
+                                    <SelectItem value="Active">
+                                        Aktif
                                     </SelectItem>
-                                    <SelectItem value="Non Aktif">
-                                        Non Aktif
+                                    <SelectItem value="Maintenance">
+                                        Maintenance
+                                    </SelectItem>
+                                    <SelectItem value="Inactive">
+                                        Inactive
                                     </SelectItem>
                                 </SelectContent>
                             </Select>

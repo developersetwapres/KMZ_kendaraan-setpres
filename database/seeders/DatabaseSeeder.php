@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Driver;
+use App\Models\Kendaraan;
+use App\Models\Penggunaan;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,5 +27,10 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+
+        Kendaraan::factory(10)->create();
+        Driver::factory(10)->create();
+        Penggunaan::factory(500)->create();
     }
 }

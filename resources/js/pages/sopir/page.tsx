@@ -51,10 +51,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-import { store } from '@/routes/driver';
+import { destroy, store, update } from '@/routes/driver';
 
 type Sopir = {
-    id_sopir: string;
+    kode_sopir: string;
     nama: string;
     nip: string;
     no_hp: string;
@@ -65,70 +65,7 @@ type Sopir = {
     fotoPreview?: string;
 };
 
-const initialData: Sopir[] = [
-    {
-        id_sopir: 'S-001',
-        nama: 'Budi Santoso',
-        nip: '19780101 200501 1 001',
-        no_hp: '081234567890',
-        status: 'Aktif',
-        sim: 'A',
-        masa_berlaku_sim: '2027-12-31',
-        foto: null,
-    },
-    {
-        id_sopir: 'S-002',
-        nama: 'Ahmad Wijaya',
-        nip: '19850515 200601 1 002',
-        no_hp: '082345678901',
-        status: 'Non Aktif',
-        sim: 'A',
-        masa_berlaku_sim: '2026-08-15',
-        foto: null,
-    },
-    {
-        id_sopir: 'S-003',
-        nama: 'Siti Nurhaliza',
-        nip: '19900320 201001 2 003',
-        no_hp: '083456789012',
-        status: 'Aktif',
-        sim: 'B',
-        masa_berlaku_sim: '2028-05-20',
-        foto: null,
-    },
-    {
-        id_sopir: 'S-004',
-        nama: 'Rudi Hermawan',
-        nip: '19750812 199801 1 004',
-        no_hp: '084567890123',
-        status: 'Cuti',
-        sim: 'A',
-        masa_berlaku_sim: '2025-11-10',
-        foto: null,
-    },
-    {
-        id_sopir: 'S-005',
-        nama: 'Eka Putri',
-        nip: '19920608 201501 2 005',
-        no_hp: '085678901234',
-        status: 'Aktif',
-        sim: 'A',
-        masa_berlaku_sim: '2027-03-25',
-        foto: null,
-    },
-    {
-        id_sopir: 'S-006',
-        nama: 'Bambang Suryanto',
-        nip: '19800225 200201 1 006',
-        no_hp: '086789012345',
-        status: 'Non Aktif',
-        sim: 'B',
-        masa_berlaku_sim: '2026-12-30',
-        foto: null,
-    },
-];
-
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -137,7 +74,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function SopirPage() {
+export default function SopirPage({ initialData }: any) {
     const [data, setData] = useState<Sopir[]>(initialData);
     const [open, setOpen] = useState(false);
     const [photoOpen, setPhotoOpen] = useState(false);
@@ -147,7 +84,7 @@ export default function SopirPage() {
     const { toast } = useToast();
 
     const [form, setForm] = useState<Sopir>({
-        id_sopir: '',
+        kode_sopir: '',
         nama: '',
         nip: '',
         no_hp: '',
@@ -169,7 +106,7 @@ export default function SopirPage() {
     const openAdd = () => {
         setEditing(null);
         setForm({
-            id_sopir: '',
+            kode_sopir: '',
             nama: '',
             nip: '',
             no_hp: '',
@@ -203,14 +140,37 @@ export default function SopirPage() {
         const { fotoPreview, ...payload } = form;
 
         if (editing) {
-            console.log('[UPDATE SOPIR]', payload);
-            setData((prev) =>
-                prev.map((r) => (r.id_sopir === editing.id_sopir ? form : r)),
+            router.post(
+                update(payload.kode_sopir).url,
+                {
+                    ...payload,
+                    _method: 'PUT',
+                },
+                {
+                    forceFormData: true,
+
+                    onSuccess: () => {
+                        setData((prev) =>
+                            prev.map((r) =>
+                                r.kode_sopir === editing.kode_sopir ? form : r,
+                            ),
+                        );
+
+                        toast({
+                            title: 'Data berhasil disimpan',
+                            description: 'Perubahan driver telah disimpan.',
+                        });
+                    },
+                    onError: (err) => {
+                        console.log(err);
+
+                        // toast({
+                        //     title: 'Data gagal disimpan',
+                        //     description: err,
+                        // });
+                    },
+                },
             );
-            toast({
-                title: 'Data berhasil disimpan',
-                description: 'Perubahan driver telah disimpan.',
-            });
         } else {
             router.post(store().url, payload, {
                 forceFormData: true,
@@ -221,22 +181,29 @@ export default function SopirPage() {
                     });
                 },
                 onError: (err) => {
-                    toast({
-                        title: 'Data gagal disimpan',
-                        description: err,
-                    });
+                    console.log(err);
+
+                    // toast({
+                    //     title: 'Data gagal disimpan',
+                    //     description: err,
+                    // });
                 },
             });
         }
         setOpen(false);
     };
 
-    const onDelete = (row: Sopir) => {
-        console.log('[DELETE SOPIR]', row);
-        setData((prev) => prev.filter((r) => r.id_sopir !== row.id_sopir));
-        toast({
-            title: 'Data berhasil dihapus',
-            description: `Driver ${row.id_sopir} dihapus.`,
+    const onDelete = (kode_sopir: string) => {
+        router.delete(destroy(kode_sopir).url, {
+            onSuccess: () => {
+                setData((prev) =>
+                    prev.filter((r) => r.kode_sopir !== kode_sopir),
+                );
+                toast({
+                    title: 'Data berhasil dihapus',
+                    description: `Driver ${kode_sopir} dihapus.`,
+                });
+            },
         });
     };
 
@@ -318,7 +285,7 @@ export default function SopirPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedData.map((row) => (
-                                        <TableRow key={row.id_sopir}>
+                                        <TableRow key={row.kode_sopir}>
                                             <TableCell>
                                                 <button
                                                     onClick={() =>
@@ -332,7 +299,7 @@ export default function SopirPage() {
                                                 </button>
                                             </TableCell>
                                             <TableCell>
-                                                {row.id_sopir}
+                                                {row.kode_sopir}
                                             </TableCell>
                                             <TableCell>{row.nama}</TableCell>
                                             <TableCell>{row.nip}</TableCell>
@@ -340,10 +307,10 @@ export default function SopirPage() {
                                             <TableCell>
                                                 <span
                                                     className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                                        row.status === 'Aktif'
+                                                        row.status === 'Active'
                                                             ? 'bg-green-100 text-green-800'
                                                             : row.status ===
-                                                                'Cuti'
+                                                                'Off'
                                                               ? 'bg-yellow-100 text-yellow-800'
                                                               : 'bg-red-100 text-red-800'
                                                     }`}
@@ -400,7 +367,7 @@ export default function SopirPage() {
                                                                 <AlertDialogAction
                                                                     onClick={() =>
                                                                         onDelete(
-                                                                            row,
+                                                                            row.kode_sopir,
                                                                         )
                                                                     }
                                                                 >
@@ -489,7 +456,7 @@ export default function SopirPage() {
                 <FormModal
                     title={
                         editing
-                            ? `Ubah Driver ${editing.id_sopir}`
+                            ? `Ubah Driver ${editing.kode_sopir}`
                             : 'Tambah Driver'
                     }
                     open={open}
@@ -542,10 +509,12 @@ export default function SopirPage() {
                                     <SelectValue placeholder="Pilih Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Aktif">Aktif</SelectItem>
-                                    <SelectItem value="Cuti">Cuti</SelectItem>
-                                    <SelectItem value="Non Aktif">
-                                        Non Aktif
+                                    <SelectItem value="Active">
+                                        Active
+                                    </SelectItem>
+                                    <SelectItem value="Off">Off</SelectItem>
+                                    <SelectItem value="Inactive">
+                                        Inactive
                                     </SelectItem>
                                 </SelectContent>
                             </Select>

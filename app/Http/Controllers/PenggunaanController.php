@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePenggunaanRequest;
 use App\Http\Requests\UpdatePenggunaanRequest;
+use App\Models\Driver;
+use Illuminate\Support\Carbon;
+use App\Models\Kendaraan;
 use App\Models\Penggunaan;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +18,24 @@ class PenggunaanController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('penggunaan/page');
+        $tahunBerjalan = Carbon::now()->year;
+
+        $data = [
+            'kendaraanList' => Kendaraan::select(['id', 'tipe', 'nomor_polisi', 'merk'])
+                ->where('status', 'Active')
+                ->get(),
+
+            'sopirList' => Driver::select(['id', 'nama'])
+                ->where('status', 'Active')->get(),
+
+            'initialData' =>  Penggunaan::with(['kendaraan', 'sopir'])
+                ->whereYear('tanggal_mulai', $tahunBerjalan)
+                ->latest()
+                ->take(500)
+                ->get(),
+        ];
+
+        return Inertia::render('penggunaan/page', $data);
     }
 
     /**
@@ -31,7 +51,10 @@ class PenggunaanController extends Controller
      */
     public function store(StorePenggunaanRequest $request)
     {
-        //
+        $data = $request->validated();
+        $data['status'] = 'Dalam Perjalanan'; // Status selalu default
+
+        Penggunaan::create($data);
     }
 
     /**
@@ -63,6 +86,15 @@ class PenggunaanController extends Controller
      */
     public function destroy(Penggunaan $penggunaan)
     {
-        //
+        $penggunaan->delete();
+    }
+
+    public function status(Penggunaan $penggunaan)
+    {
+        $penggunaan->update([
+            'tanggal_selesai' => Carbon::now()->toDateString(),
+            'waktu_selesai' => Carbon::now()->format('H:i'),
+            'status' => 'Selesai',
+        ]);
     }
 }
