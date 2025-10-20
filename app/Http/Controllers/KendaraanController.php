@@ -8,6 +8,8 @@ use App\Models\Kendaraan;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Storage;
+
 
 class KendaraanController extends Controller
 {
@@ -43,7 +45,7 @@ class KendaraanController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('foto_kendaraan')) {
-            $path = $request->file('foto_kendaraan')->store('kendaraan', 'public');
+            $path = $request->file('foto_kendaraan')->store('image/kendaraan', 'public');
             $data['foto_kendaraan'] = $path;
         }
 
@@ -72,6 +74,21 @@ class KendaraanController extends Controller
     public function update(UpdateKendaraanRequest $request, Kendaraan $kendaraan)
     {
         $validated = $request->validated();
+
+        if ($request->hasFile('foto_kendaraan')) {
+            // Hapus foto lama
+            if ($kendaraan->foto_kendaraan && Storage::disk('public')->exists($kendaraan->foto_kendaraan)) {
+                Storage::disk('public')->delete($kendaraan->foto_kendaraan);
+            }
+
+            // Simpan foto baru
+            $path = $request->file('foto_kendaraan')->store('image/kendaraan', 'public');
+            $validated['foto_kendaraan'] = $path;
+        } else {
+            // Pakai foto lama
+            $validated['foto_kendaraan'] = $kendaraan->foto_kendaraan;
+        }
+
         $kendaraan->update($validated);
     }
 
@@ -80,6 +97,10 @@ class KendaraanController extends Controller
      */
     public function destroy(Kendaraan $kendaraan)
     {
+        if ($kendaraan->foto_kendaraan && Storage::disk('public')->exists($kendaraan->foto_kendaraan)) {
+            Storage::disk('public')->delete($kendaraan->foto_kendaraan);
+        }
+
         $kendaraan->delete();
     }
 }

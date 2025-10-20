@@ -22,7 +22,7 @@ class UpdateKendaraanRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'nomor_polisi' => 'required|string|max:20',
             'merk' => 'required|string|max:100',
             'tipe' => 'required|string|max:100',
@@ -31,8 +31,15 @@ class UpdateKendaraanRequest extends FormRequest
             'nomor_rangka' => 'required|string|max:100',
             'nomor_mesin' => 'required|string|max:100',
             'status' => 'required|string|max:50',
-            'foto_kendaraan' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_kendaraan' => 'nullable',
         ];
+
+        // Validasi file hanya jika benar-benar upload baru
+        if ($this->hasFile('foto_kendaraan')) {
+            $rules['foto_kendaraan'] = 'nullable|image|mimes:jpeg,png,jpg|max:2048';
+        }
+
+        return $rules;
     }
 
     public function messages(): array

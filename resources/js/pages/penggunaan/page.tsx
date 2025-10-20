@@ -72,8 +72,6 @@ export default function PenggunaanPage({
     kendaraanList,
     initialData,
 }: any) {
-    console.log(initialData);
-
     const [data, setData] = useState<Penggunaan[]>(initialData);
     const [open, setOpen] = useState(false);
     const [detailOpen, setDetailOpen] = useState(false);
@@ -112,6 +110,28 @@ export default function PenggunaanPage({
         if (p.status !== 'Selesai' || !p.tanggal_selesai) return false;
         const date = new Date(p.tanggal_selesai);
         return date >= thisWeekStart && date <= today;
+    }).length;
+
+    const penggunaanSelesaiBulanIni = data.filter((p) => {
+        if (p.status !== 'Selesai' || !p.tanggal_selesai) return false;
+
+        const date = new Date(p.tanggal_selesai);
+        const now = new Date();
+
+        // Awal bulan (misal: 2025-10-01 00:00:00)
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Akhir bulan (misal: 2025-10-31 23:59:59)
+        const endOfMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+        );
+
+        return date >= startOfMonth && date <= endOfMonth;
     }).length;
 
     const kendaraanDalamPerjalanan = data.filter(
@@ -238,10 +258,23 @@ export default function PenggunaanPage({
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <Card className="border-2 border-purple-200 bg-purple-50">
+                        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
+                                Dalam Perjalanan
+                            </CardTitle>
+                            <div className="text-2xl text-purple-600">🚗</div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-purple-600">
+                                {kendaraanDalamPerjalanan}
+                            </div>
+                        </CardContent>
+                    </Card>
                     <Card className="border-2 border-blue-200 bg-blue-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Selesai Hari Ini
                             </CardTitle>
                             <div className="text-2xl text-blue-600">📅</div>
@@ -254,7 +287,7 @@ export default function PenggunaanPage({
                     </Card>
                     <Card className="border-2 border-green-200 bg-green-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Selesai Minggu Ini
                             </CardTitle>
                             <div className="text-2xl text-green-600">📊</div>
@@ -265,16 +298,16 @@ export default function PenggunaanPage({
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="border-2 border-purple-200 bg-purple-50">
+                    <Card className="border-2 border-red-200 bg-red-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                Dalam Perjalanan
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
+                                Selesai Bulan Ini
                             </CardTitle>
-                            <div className="text-2xl text-purple-600">🚗</div>
+                            <div className="text-2xl text-red-600">💹</div>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-3xl font-bold text-purple-600">
-                                {kendaraanDalamPerjalanan}
+                            <div className="text-3xl font-bold text-red-600">
+                                {penggunaanSelesaiBulanIni}
                             </div>
                         </CardContent>
                     </Card>

@@ -26,7 +26,7 @@ class StoreDriverRequest extends FormRequest
             'nama' => 'required|string|max:100',
             'nip' => 'required|string|max:50|unique:drivers,nip',
             'no_hp' => 'required|string|max:20',
-            'status' => 'required|in:Active,Inactive,Maintenance',
+            'status' => 'required|in:Active,Off,Inactive',
             'sim' => 'required|string|max:50',
             'masa_berlaku_sim' => 'required|date',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',

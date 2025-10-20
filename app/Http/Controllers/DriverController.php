@@ -8,6 +8,7 @@ use App\Models\Driver;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Storage;
 
 class DriverController extends Controller
 {
@@ -45,7 +46,7 @@ class DriverController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('driver', 'public');
+            $path = $request->file('foto')->store('image/driver', 'public');
             $data['foto'] = $path;
         }
 
@@ -75,6 +76,21 @@ class DriverController extends Controller
     {
         $validated = $request->validated();
 
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama
+            if ($driver->foto && Storage::disk('public')->exists($driver->foto)) {
+                Storage::disk('public')->delete($driver->foto);
+            }
+
+
+            // Simpan foto baru
+            $path = $request->file('foto')->store('image/driver', 'public');
+            $validated['foto'] = $path;
+        } else {
+            // Pakai foto lama
+            $validated['foto'] = $driver->foto;
+        }
+
         $driver->update($validated);
     }
 
@@ -83,6 +99,10 @@ class DriverController extends Controller
      */
     public function destroy(Driver $driver)
     {
+        if ($driver->foto && Storage::disk('public')->exists($driver->foto)) {
+            Storage::disk('public')->delete($driver->foto);
+        }
+
         $driver->delete();
     }
 }

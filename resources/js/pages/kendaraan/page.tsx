@@ -49,7 +49,7 @@ import {
     Plus,
     Trash,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Kendaraan = {
     kode_kendaraan: string;
@@ -101,6 +101,9 @@ export default function KendaraanPage({ initialData }: any) {
     const kendaraanTersedia = data.filter((k) => k.status === 'Active').length;
     const kendaraanService = data.filter(
         (k) => k.status === 'Maintenance',
+    ).length;
+    const kendaraanInactive = data.filter(
+        (k) => k.status === 'Inactive',
     ).length;
 
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
@@ -217,6 +220,10 @@ export default function KendaraanPage({ initialData }: any) {
         });
     };
 
+    useEffect(() => {
+        setData(initialData);
+    }, [initialData]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -229,10 +236,10 @@ export default function KendaraanPage({ initialData }: any) {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card className="border-2 border-blue-200 bg-blue-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Total Kendaraan
                             </CardTitle>
                             <div className="text-2xl text-blue-600">📊</div>
@@ -245,7 +252,7 @@ export default function KendaraanPage({ initialData }: any) {
                     </Card>
                     <Card className="border-2 border-green-200 bg-green-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Kendaraan Tersedia
                             </CardTitle>
                             <div className="text-2xl text-green-600">✓</div>
@@ -258,7 +265,7 @@ export default function KendaraanPage({ initialData }: any) {
                     </Card>
                     <Card className="border-2 border-orange-200 bg-orange-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Dalam Perawatan
                             </CardTitle>
                             <div className="text-2xl text-orange-600">🔧</div>
@@ -266,6 +273,19 @@ export default function KendaraanPage({ initialData }: any) {
                         <CardContent>
                             <div className="text-3xl font-bold text-orange-600">
                                 {kendaraanService}
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-2 border-red-200 bg-red-50">
+                        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
+                                Tidak dapat digunakan
+                            </CardTitle>
+                            <div className="text-2xl text-red-600">⚠️</div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-red-600">
+                                {kendaraanInactive}
                             </div>
                         </CardContent>
                     </Card>
@@ -618,16 +638,18 @@ export default function KendaraanPage({ initialData }: any) {
                                     reader.readAsDataURL(file);
                                 }}
                             />
-
                             {form.fotoPreview && (
                                 <div className="relative h-40 w-full overflow-hidden rounded-md bg-muted">
                                     <img
                                         src={
-                                            form.fotoPreview ||
-                                            '/placeholder.svg'
+                                            form.fotoPreview.startsWith(
+                                                'data:image',
+                                            )
+                                                ? form.fotoPreview // kalau base64
+                                                : `/storage/${form.fotoPreview}` // kalau path dari DB
                                         }
                                         alt="Preview"
-                                        className="object-cover"
+                                        className="h-full w-full object-cover"
                                     />
                                 </div>
                             )}

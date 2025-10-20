@@ -49,7 +49,7 @@ import {
     Plus,
     Trash,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { destroy, store, update } from '@/routes/driver';
 
@@ -96,8 +96,9 @@ export default function SopirPage({ initialData }: any) {
     });
 
     const totalDriver = data.length;
-    const driverNonAktif = data.filter((s) => s.status === 'Non Aktif').length;
-    const driverAktif = data.filter((s) => s.status === 'Aktif').length;
+    const driverAktif = data.filter((s) => s.status === 'Active').length;
+    const driverOff = data.filter((s) => s.status === 'Off').length;
+    const driverNonAktif = data.filter((s) => s.status === 'Inactive').length;
 
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -207,6 +208,10 @@ export default function SopirPage({ initialData }: any) {
         });
     };
 
+    useEffect(() => {
+        setData(initialData);
+    }, [initialData]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -219,10 +224,10 @@ export default function SopirPage({ initialData }: any) {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card className="border-2 border-blue-200 bg-blue-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Total Driver
                             </CardTitle>
                             <div className="text-2xl text-blue-600">👥</div>
@@ -235,7 +240,7 @@ export default function SopirPage({ initialData }: any) {
                     </Card>
                     <Card className="border-2 border-green-200 bg-green-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
                                 Driver Aktif
                             </CardTitle>
                             <div className="text-2xl text-green-600">✓</div>
@@ -246,12 +251,25 @@ export default function SopirPage({ initialData }: any) {
                             </div>
                         </CardContent>
                     </Card>
+                    <Card className="border-2 border-yellow-200 bg-yellow-50">
+                        <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
+                                Driver Off
+                            </CardTitle>
+                            <div className="text-2xl text-yellow-600">🚗</div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-bold text-yellow-600">
+                                {driverOff}
+                            </div>
+                        </CardContent>
+                    </Card>
                     <Card className="border-2 border-purple-200 bg-purple-50">
                         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                Driver Cuti
+                            <CardTitle className="text-lg font-medium text-muted-foreground">
+                                Driver Non Aktif
                             </CardTitle>
-                            <div className="text-2xl text-purple-600">🚗</div>
+                            <div className="text-2xl text-purple-600">⚠️</div>
                         </CardHeader>
                         <CardContent>
                             <div className="text-3xl font-bold text-purple-600">
@@ -513,9 +531,7 @@ export default function SopirPage({ initialData }: any) {
                                         Active
                                     </SelectItem>
                                     <SelectItem value="Off">Off</SelectItem>
-                                    <SelectItem value="Inactive">
-                                        Inactive
-                                    </SelectItem>
+                                    <SelectItem value="ee">ee</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -581,11 +597,16 @@ export default function SopirPage({ initialData }: any) {
                                     reader.readAsDataURL(file);
                                 }}
                             />
-
                             {form.fotoPreview && (
                                 <div className="relative h-40 w-full overflow-hidden rounded-md bg-muted">
                                     <img
-                                        src={form.fotoPreview}
+                                        src={
+                                            form.fotoPreview.startsWith(
+                                                'data:image',
+                                            )
+                                                ? form.fotoPreview // kalau base64
+                                                : `/storage/${form.fotoPreview}` // kalau path dari DB
+                                        }
                                         alt="Preview"
                                         className="h-full w-full object-cover"
                                     />

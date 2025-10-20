@@ -23,15 +23,22 @@ class UpdateDriverRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'nama' => 'required|string|max:100',
             'nip' => 'required|string|max:50',
             'no_hp' => 'required|string|max:20',
-            'status' => 'required|in:Active,Inactive,Maintenance',
+            'status' => 'required|in:Active,Off,Inactive',
             'sim' => 'required|string|max:50',
             'masa_berlaku_sim' => 'required|date',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable',
         ];
+
+        // Hanya validasi file kalau benar-benar upload baru
+        if ($this->hasFile('foto')) {
+            $rules['foto'] = 'nullable|image|mimes:jpeg,png,jpg|max:2048';
+        }
+
+        return $rules;
     }
 
     public function messages(): array
