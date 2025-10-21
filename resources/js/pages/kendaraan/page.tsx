@@ -174,13 +174,16 @@ export default function KendaraanPage({ initialData }: any) {
                             description: 'Perubahan kendaraan telah disimpan.',
                         });
                     },
-                    onError: (err) => {
-                        console.log(err);
+                    onError: (errors) => {
+                        const firstError = Object.values(errors)[0];
+                        const errorMessage = Array.isArray(firstError)
+                            ? firstError[0]
+                            : String(firstError ?? 'Terjadi kesalahan.');
 
-                        // toast({
-                        //     title: 'Data gagal disimpan',
-                        //     description: err,
-                        // });
+                        toast({
+                            title: 'Data gagal disimpan',
+                            description: errorMessage,
+                        });
                     },
                 },
             );
@@ -193,13 +196,16 @@ export default function KendaraanPage({ initialData }: any) {
                         description: 'Kendaraan baru telah ditambahkan.',
                     });
                 },
-                onError: (err) => {
-                    console.log(err);
+                onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+                    const errorMessage = Array.isArray(firstError)
+                        ? firstError[0]
+                        : String(firstError ?? 'Terjadi kesalahan.');
 
-                    // toast({
-                    //     title: 'Data gagal disimpan',
-                    //     description: err,
-                    // });
+                    toast({
+                        title: 'Data gagal disimpan',
+                        description: errorMessage,
+                    });
                 },
             });
         }
@@ -472,9 +478,12 @@ export default function KendaraanPage({ initialData }: any) {
                         {selectedPhoto ? (
                             <div className="relative h-80 w-full overflow-hidden rounded-md bg-muted">
                                 <img
-                                    src={selectedPhoto || '/placeholder.svg'}
+                                    src={
+                                        `/storage/${selectedPhoto}` ||
+                                        '/placeholder.svg'
+                                    }
                                     alt="Foto Kendaraan"
-                                    className="object-cover"
+                                    className="h-full w-full object-cover"
                                 />
                             </div>
                         ) : (

@@ -172,16 +172,16 @@ export default function PenggunaanPage({
 
     const onSubmit = () => {
         if (editing) {
-            console.log('[UPDATE PENGGUNAAN]', form);
-            setData((prev) =>
-                prev.map((r) =>
-                    r.kode_penggunaan === editing.kode_penggunaan ? form : r,
-                ),
-            );
-            toast({
-                title: 'Data berhasil disimpan',
-                description: 'Perubahan penggunaan telah disimpan.',
-            });
+            // console.log('[UPDATE PENGGUNAAN]', form);
+            // setData((prev) =>
+            //     prev.map((r) =>
+            //         r.kode_penggunaan === editing.kode_penggunaan ? form : r,
+            //     ),
+            // );
+            // toast({
+            //     title: 'Data berhasil disimpan',
+            //     description: 'Perubahan penggunaan telah disimpan.',
+            // });
         } else {
             router.post(store().url, form, {
                 forceFormData: true,
@@ -191,13 +191,16 @@ export default function PenggunaanPage({
                         description: 'Penggunaan baru telah ditambahkan.',
                     });
                 },
-                onError: (err) => {
-                    console.log(err);
+                onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+                    const errorMessage = Array.isArray(firstError)
+                        ? firstError[0]
+                        : String(firstError ?? 'Terjadi kesalahan.');
 
-                    // toast({
-                    //     title: 'Data gagal disimpan',
-                    //     description: err,
-                    // });
+                    toast({
+                        title: 'Data gagal disimpan',
+                        description: errorMessage,
+                    });
                 },
             });
         }
@@ -218,9 +221,6 @@ export default function PenggunaanPage({
                         description: `Kendaraan telah kembali pada ${waktuSelesai}.`,
                     });
                     setDetailOpen(false);
-                },
-                onError: (err) => {
-                    console.log(err);
                 },
             },
         );

@@ -10,7 +10,7 @@ import { dashboard } from '@/routes';
 import { BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { Calendar, Clock, Gauge, TrendingUp, Users, Zap } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
     Bar,
     BarChart,
@@ -26,88 +26,6 @@ import {
     YAxis,
 } from 'recharts';
 
-// Mock data from other pages
-const kendaraanData = [
-    { id_kendaraan: 'K-001', status: 'Aktif' },
-    { id_kendaraan: 'K-002', status: 'Aktif' },
-    { id_kendaraan: 'K-003', status: 'Service' },
-    { id_kendaraan: 'K-004', status: 'Aktif' },
-    { id_kendaraan: 'K-005', status: 'Non Aktif' },
-    { id_kendaraan: 'K-006', status: 'Aktif' },
-];
-
-const sopirData = [
-    { id_sopir: 'S-001', status: 'Aktif' },
-    { id_sopir: 'S-002', status: 'Aktif' },
-    { id_sopir: 'S-003', status: 'Aktif' },
-    { id_sopir: 'S-004', status: 'Cuti' },
-    { id_sopir: 'S-005', status: 'Aktif' },
-    { id_sopir: 'S-006', status: 'Aktif' },
-];
-
-const penggunaanData = [
-    {
-        id_penggunaan: 'P-001',
-        kendaraan_id: 'K-001',
-        sopir_id: 'S-001',
-        tanggal_mulai: '2025-10-12',
-        waktu_mulai: '08:00',
-        tanggal_selesai: '2025-10-12',
-        waktu_selesai: '17:00',
-        status: 'Selesai',
-    },
-    {
-        id_penggunaan: 'P-002',
-        kendaraan_id: 'K-002',
-        sopir_id: 'S-002',
-        tanggal_mulai: '2025-10-18',
-        waktu_mulai: '09:30',
-        tanggal_selesai: '',
-        waktu_selesai: '',
-        status: 'Dalam Perjalanan',
-    },
-    {
-        id_penggunaan: 'P-003',
-        kendaraan_id: 'K-003',
-        sopir_id: 'S-003',
-        tanggal_mulai: '2025-10-15',
-        waktu_mulai: '10:00',
-        tanggal_selesai: '2025-10-15',
-        waktu_selesai: '15:30',
-        status: 'Selesai',
-    },
-    {
-        id_penggunaan: 'P-004',
-        kendaraan_id: 'K-004',
-        sopir_id: 'S-004',
-        tanggal_mulai: '2025-10-16',
-        waktu_mulai: '07:00',
-        tanggal_selesai: '2025-10-16',
-        waktu_selesai: '18:00',
-        status: 'Selesai',
-    },
-    {
-        id_penggunaan: 'P-005',
-        kendaraan_id: 'K-005',
-        sopir_id: 'S-005',
-        tanggal_mulai: '2025-10-18',
-        waktu_mulai: '11:00',
-        tanggal_selesai: '',
-        waktu_selesai: '',
-        status: 'Dalam Perjalanan',
-    },
-    {
-        id_penggunaan: 'P-006',
-        kendaraan_id: 'K-001',
-        sopir_id: 'S-006',
-        tanggal_mulai: '2025-10-17',
-        waktu_mulai: '13:00',
-        tanggal_selesai: '2025-10-17',
-        waktu_selesai: '16:45',
-        status: 'Selesai',
-    },
-];
-
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Penggunaan',
@@ -115,26 +33,27 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function DashboardPage() {
-    const [dateFrom, setDateFrom] = useState('2025-09-18');
-    const [dateTo, setDateTo] = useState('2025-10-18');
-    const [filterKendaraan, setFilterKendaraan] = useState('all');
-    const [filterSopir, setFilterSopir] = useState('all');
-
+export default function DashboardPage({
+    kendaraanData,
+    sopirData,
+    penggunaanData,
+}: any) {
     // Calculate KPI metrics
     const totalKendaraan = kendaraanData.length;
     const kendaraanAktif = kendaraanData.filter(
-        (k) => k.status === 'Aktif',
+        (k: any) => k.status === 'Active',
     ).length;
     const kendaraanDalamPerjalanan = penggunaanData.filter(
-        (p) => p.status === 'Dalam Perjalanan',
+        (p: any) => p.status === 'Dalam Perjalanan',
     ).length;
-    const sopirAktif = sopirData.filter((s) => s.status === 'Aktif').length;
+    const sopirAktif = sopirData.filter(
+        (s: any) => s.status === 'Active',
+    ).length;
 
     // Trip bulan ini
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    const tripBulanIni = penggunaanData.filter((p) => {
+    const tripBulanIni = penggunaanData.filter((p: any) => {
         const date = new Date(p.tanggal_mulai);
         return (
             date.getMonth() === currentMonth &&
@@ -144,13 +63,13 @@ export default function DashboardPage() {
 
     // Rata-rata durasi perjalanan
     const selesaiData = penggunaanData.filter(
-        (p) => p.status === 'Selesai' && p.tanggal_selesai,
+        (p: any) => p.status === 'Selesai' && p.tanggal_selesai,
     );
 
     const rataRataDurasi =
         selesaiData.length > 0
             ? (
-                  selesaiData.reduce((acc, p) => {
+                  selesaiData.reduce((acc: any, p: any) => {
                       const mulai = new Date(
                           `${p.tanggal_mulai}T${p.waktu_mulai}`,
                       );
@@ -168,16 +87,19 @@ export default function DashboardPage() {
     // Chart data: Status Kendaraan
     const statusKendaraanChart = [
         {
-            name: 'Aktif',
-            value: kendaraanData.filter((k) => k.status === 'Aktif').length,
+            name: 'Active',
+            value: kendaraanData.filter((k: any) => k.status === 'Active')
+                .length,
         },
         {
-            name: 'Service',
-            value: kendaraanData.filter((k) => k.status === 'Service').length,
+            name: 'Maintenance',
+            value: kendaraanData.filter((k: any) => k.status === 'Maintenance')
+                .length,
         },
         {
-            name: 'Non Aktif',
-            value: kendaraanData.filter((k) => k.status === 'Non Aktif').length,
+            name: 'Inactive',
+            value: kendaraanData.filter((k: any) => k.status === 'Inactive')
+                .length,
         },
     ];
 
@@ -190,7 +112,7 @@ export default function DashboardPage() {
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
             const count = penggunaanData.filter(
-                (p) => p.tanggal_mulai === dateStr,
+                (p: any) => p.tanggal_mulai === dateStr,
             ).length;
             days.push({
                 date: date.toLocaleDateString('id-ID', {
@@ -206,8 +128,9 @@ export default function DashboardPage() {
     // Chart data: Utilisasi Kendaraan
     const utilisasiKendaraanChart = useMemo(() => {
         const kendaraanMap: { [key: string]: number } = {};
-        penggunaanData.forEach((p) => {
-            if (!kendaraanMap[p.kendaraan_id]) kendaraanMap[p.kendaraan_id] = 0;
+        penggunaanData.forEach((p: any) => {
+            if (!kendaraanMap[p.kendaraan?.nomor_polisi])
+                kendaraanMap[p.kendaraan?.nomor_polisi] = 0;
             if (p.tanggal_selesai && p.waktu_selesai) {
                 const mulai = new Date(`${p.tanggal_mulai}T${p.waktu_mulai}`);
                 const selesai = new Date(
@@ -215,7 +138,7 @@ export default function DashboardPage() {
                 );
                 const durasi =
                     (selesai.getTime() - mulai.getTime()) / (1000 * 60 * 60);
-                kendaraanMap[p.kendaraan_id] += durasi;
+                kendaraanMap[p.kendaraan?.nomor_polisi] += durasi;
             }
         });
         return Object.entries(kendaraanMap).map(([id, hours]) => ({
@@ -227,10 +150,12 @@ export default function DashboardPage() {
     // Chart data: Aktivitas Sopir
     const aktivitasSopirChart = useMemo(() => {
         const sopirMap: { [key: string]: number } = {};
-        penggunaanData.forEach((p) => {
-            if (!sopirMap[p.sopir_id]) sopirMap[p.sopir_id] = 0;
-            sopirMap[p.sopir_id] += 1;
+
+        penggunaanData.forEach((p: any) => {
+            if (!sopirMap[p.sopir?.nama]) sopirMap[p.sopir?.nama] = 0;
+            sopirMap[p.sopir?.nama] += 1;
         });
+
         return Object.entries(sopirMap).map(([id, trips]) => ({
             sopir: id,
             trips: trips,
@@ -514,17 +439,25 @@ export default function DashboardPage() {
                                         <XAxis
                                             dataKey="kendaraan"
                                             tick={{ fontSize: 12 }}
+                                            angle={-45}
+                                            textAnchor="end"
+                                            interval={0}
+                                            height={60}
                                         />
                                         <YAxis tick={{ fontSize: 12 }} />
                                         <ChartTooltip
                                             content={<ChartTooltipContent />}
                                         />
-                                        <Legend />
+                                        <Legend
+                                            verticalAlign="top"
+                                            height={32}
+                                        />
                                         <Bar
                                             dataKey="jam"
                                             fill="#8b5cf6"
                                             radius={[6, 6, 0, 0]}
                                             name="Jam Pemakaian"
+                                            height={60}
                                         />
                                     </BarChart>
                                 </ResponsiveContainer>
@@ -541,7 +474,7 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <ChartContainer
-                                className="h-[300px]"
+                                className="h-[320px]"
                                 config={{
                                     trips: { label: 'Trip', color: '#ec4899' },
                                 }}
@@ -553,7 +486,7 @@ export default function DashboardPage() {
                                             left: 0,
                                             right: 0,
                                             top: 5,
-                                            bottom: 5,
+                                            bottom: 55,
                                         }}
                                     >
                                         <CartesianGrid
@@ -563,12 +496,20 @@ export default function DashboardPage() {
                                         <XAxis
                                             dataKey="sopir"
                                             tick={{ fontSize: 12 }}
+                                            angle={-45}
+                                            textAnchor="end"
+                                            interval={0}
+                                            height={55}
                                         />
+
                                         <YAxis tick={{ fontSize: 12 }} />
                                         <ChartTooltip
                                             content={<ChartTooltipContent />}
                                         />
-                                        <Legend />
+                                        <Legend
+                                            verticalAlign="top"
+                                            height={32}
+                                        />
                                         <Bar
                                             dataKey="trips"
                                             fill="#ec4899"

@@ -162,13 +162,16 @@ export default function SopirPage({ initialData }: any) {
                             description: 'Perubahan driver telah disimpan.',
                         });
                     },
-                    onError: (err) => {
-                        console.log(err);
+                    onError: (errors) => {
+                        const firstError = Object.values(errors)[0];
+                        const errorMessage = Array.isArray(firstError)
+                            ? firstError[0]
+                            : String(firstError ?? 'Terjadi kesalahan.');
 
-                        // toast({
-                        //     title: 'Data gagal disimpan',
-                        //     description: err,
-                        // });
+                        toast({
+                            title: 'Data gagal disimpan',
+                            description: errorMessage,
+                        });
                     },
                 },
             );
@@ -181,13 +184,16 @@ export default function SopirPage({ initialData }: any) {
                         description: 'Driver baru telah ditambahkan.',
                     });
                 },
-                onError: (err) => {
-                    console.log(err);
+                onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+                    const errorMessage = Array.isArray(firstError)
+                        ? firstError[0]
+                        : String(firstError ?? 'Terjadi kesalahan.');
 
-                    // toast({
-                    //     title: 'Data gagal disimpan',
-                    //     description: err,
-                    // });
+                    toast({
+                        title: 'Data gagal disimpan',
+                        description: errorMessage,
+                    });
                 },
             });
         }
@@ -454,13 +460,14 @@ export default function SopirPage({ initialData }: any) {
                             <DialogTitle>Preview Foto Driver</DialogTitle>
                         </DialogHeader>
                         {selectedPhoto ? (
-                            <div className="relative h-80 w-full overflow-hidden rounded-md bg-muted">
-                                <img
-                                    src={selectedPhoto || '/placeholder.svg'}
-                                    alt="Foto Driver"
-                                    className="object-cover"
-                                />
-                            </div>
+                            <img
+                                src={
+                                    `/storage/${selectedPhoto}` ||
+                                    '/placeholder.svg'
+                                }
+                                alt="Foto Kendaraan"
+                                className="h-full w-full object-cover"
+                            />
                         ) : (
                             <div className="flex h-80 w-full items-center justify-center rounded-md bg-muted">
                                 <p className="text-muted-foreground">
@@ -531,7 +538,9 @@ export default function SopirPage({ initialData }: any) {
                                         Active
                                     </SelectItem>
                                     <SelectItem value="Off">Off</SelectItem>
-                                    <SelectItem value="ee">ee</SelectItem>
+                                    <SelectItem value="Inactive">
+                                        Inactive
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
